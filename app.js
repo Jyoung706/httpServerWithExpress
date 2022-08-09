@@ -41,4 +41,15 @@ const createUser = (req, res) => {
   res.json({ message: "user-created" });
 };
 
-module.exports = { createUser };
+const createPost = (req, res) => {
+  const postData = req.body.inform;
+  posts.push({
+    id: postData.id,
+    title: postData.title,
+    content: postData.content,
+    userId: postData.userId,
+  });
+
+  res.json({ message: "post-created" });
+};
+module.exports = { createUser, createPost };
