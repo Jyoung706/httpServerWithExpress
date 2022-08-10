@@ -103,23 +103,20 @@ const viewingListofPosts = (req, res) => {
 };
 
 const modifyPost = (req, res) => {
-  let obj = { data: {} };
-  let postingIdIndex = req.body.data.postingId - 1;
-  let userNameIndex = posts[req.body.data.postingId - 1].userId - 1;
+  const { postingId, postingContent } = req.body.data;
 
-  console.log(postingIdIndex);
-  console.log(userNameIndex);
+  const post = posts.find((post) => post.id === postingId);
+  const userN = users.find((user) => post.userId === user.id);
 
-  obj.data.userId = posts[postingIdIndex].userId;
-  obj.data.userName = users[userNameIndex].name;
-  obj.data.postingId = req.body.data.postingId;
+  const modifiedPost = {
+    userId: post.userId,
+    userName: userN.name,
+    postingId: postingId,
+    postingTitle: post.title,
+    postingContent: postingContent,
+  };
 
-  posts[postingIdIndex].title = req.body.data.postingTitle;
-  obj.data.postingTitle = posts[postingIdIndex].title;
-  posts[postingIdIndex].content = req.body.data.postingContent;
-  obj.data.postingContent = posts[postingIdIndex].content;
-
-  res.json(obj);
+  res.json({ data: modifiedPost });
   res.status(200).json();
 };
 
