@@ -33,6 +33,13 @@ const posts = [
     content: "1234567!!",
     userId: 1,
   },
+  {
+    id: 4,
+    title: "특성",
+    image: "내용",
+    content: "1234567!!",
+    userId: 2,
+  },
 ];
 
 const createUser = (req, res) => {
@@ -66,13 +73,23 @@ const viewingListofPosts = (req, res) => {
   let data = [];
 
   for (let i = 0; i < posts.length; i++) {
-    data[i] = {
-      userId: posts[i].userId,
-      userName: users[posts[i].userId - 1].name,
-      postingId: posts[i].id,
-      postingTitle: posts[i].title,
-      postingContent: posts[i].content,
-    };
+    if (posts[i].image !== undefined) {
+      data[i] = {
+        userId: posts[i].userId,
+        userName: users[posts[i].userId - 1].name,
+        postingId: posts[i].id,
+        postingImageUrl: posts[i].image,
+        postingContent: posts[i].content,
+      };
+    } else if (posts[i].image == undefined) {
+      data[i] = {
+        userId: posts[i].userId,
+        userName: users[posts[i].userId - 1].name,
+        postingId: posts[i].id,
+        postingTitle: posts[i].title,
+        postingContent: posts[i].content,
+      };
+    }
   }
 
   res.json({ data });
