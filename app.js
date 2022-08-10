@@ -11,6 +11,7 @@ const users = [
     email: "Connell29@gmail.com",
     password: "password",
   },
+  { id: 3, name: "Jun", email: "Jun23@gmail.com", password: "13334423" },
 ];
 
 const posts = [
@@ -24,6 +25,12 @@ const posts = [
     id: 2,
     title: "HTTP의 특성",
     content: "Request/Response와 Stateless!!",
+    userId: 3,
+  },
+  {
+    id: 3,
+    title: "특성",
+    content: "1234567!!",
     userId: 1,
   },
 ];
@@ -39,6 +46,7 @@ const createUser = (req, res) => {
   });
 
   res.json({ message: "user-created" });
+  res.status(200).json();
 };
 
 const createPost = (req, res) => {
@@ -51,5 +59,24 @@ const createPost = (req, res) => {
   });
 
   res.json({ message: "post-created" });
+  res.status(200).json();
 };
-module.exports = { createUser, createPost };
+
+const viewingListofPosts = (req, res) => {
+  let data = [];
+
+  for (let i = 0; i < posts.length; i++) {
+    data[i] = {
+      userId: posts[i].userId,
+      userName: users[posts[i].userId - 1].name,
+      postingId: posts[i].id,
+      postingTitle: posts[i].title,
+      postingContent: posts[i].content,
+    };
+  }
+
+  res.json({ data });
+  res.status(200).json();
+};
+
+module.exports = { createUser, createPost, viewingListofPosts };
