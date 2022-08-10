@@ -96,4 +96,25 @@ const viewingListofPosts = (req, res) => {
   res.status(200).json();
 };
 
-module.exports = { createUser, createPost, viewingListofPosts };
+const modifyPost = (req, res) => {
+  let obj = { data: {} };
+  let postingIdIndex = req.body.data.postingId - 1;
+  let userNameIndex = posts[req.body.data.postingId - 1].userId - 1;
+
+  console.log(postingIdIndex);
+  console.log(userNameIndex);
+
+  obj.data.userId = posts[postingIdIndex].userId;
+  obj.data.userName = users[userNameIndex].name;
+  obj.data.postingId = req.body.data.postingId;
+
+  posts[postingIdIndex].title = req.body.data.postingTitle;
+  obj.data.postingTitle = posts[postingIdIndex].title;
+  posts[postingIdIndex].content = req.body.data.postingContent;
+  obj.data.postingContent = posts[postingIdIndex].content;
+
+  res.json(obj);
+  res.status(200).json();
+};
+
+module.exports = { createUser, createPost, viewingListofPosts, modifyPost };
