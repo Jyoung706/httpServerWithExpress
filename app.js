@@ -30,26 +30,43 @@ const posts = [
 
 const createUser = (req, res) => {
   const user = req.body.inform;
-
-  users.push({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    password: user.password,
-  });
-
+  const lastUser = users[users.length - 1];
+  if (lastUser) {
+    users.push({
+      id: lastUser.id + 1,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+    });
+  } else {
+    users.push({
+      id: 1,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+    });
+  }
   res.json({ message: "user-created" });
 };
 
 const createPost = (req, res) => {
   const postData = req.body.inform;
-  posts.push({
-    id: postData.id,
-    title: postData.title,
-    content: postData.content,
-    userId: postData.userId,
-  });
-
+  const lastPost = posts[posts.length - 1];
+  if (lastPost) {
+    posts.push({
+      id: lastPost.id + 1,
+      title: postData.title,
+      content: postData.content,
+      userId: postData.userId,
+    });
+  } else {
+    posts.push({
+      id: 1,
+      title: postData.title,
+      content: postData.content,
+      userId: postData.userId,
+    });
+  }
   res.json({ message: "post-created" });
 };
 module.exports = { createUser, createPost };
