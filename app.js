@@ -88,7 +88,7 @@ const createPost = (req, res) => {
 const viewingListofPosts = (req, res) => {
   let newPosts = posts.map((post) => {
     const userN = users.find((user) => post.userId === user.id);
-    console.log(userN);
+
     return {
       userID: post.userId,
       userName: userN.name,
@@ -115,6 +115,8 @@ const modifyPost = (req, res) => {
     postingTitle: post.title,
     postingContent: postingContent,
   };
+
+  post.content = modifiedPost.postingContent;
 
   res.json({ data: modifiedPost });
   res.status(200).json();
