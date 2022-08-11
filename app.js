@@ -119,7 +119,23 @@ const modifyPost = (req, res) => {
   post.content = modifiedPost.postingContent;
 
   res.json({ data: modifiedPost });
-  res.status(200).json();
 };
 
-module.exports = { createUser, createPost, viewingListofPosts, modifyPost };
+const postingDelete = (req, res) => {
+  const { id, userId } = req.body.data;
+
+  if (posts[id - 1].userId === userId) {
+    posts.splice(id - 1, 1);
+    res.status(200).json({ message: "delete complete" });
+  } else {
+    res.status(403).json({ message: "delete failed" });
+  }
+};
+
+module.exports = {
+  createUser,
+  createPost,
+  viewingListofPosts,
+  modifyPost,
+  postingDelete,
+};
