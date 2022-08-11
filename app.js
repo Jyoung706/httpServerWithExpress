@@ -132,8 +132,29 @@ const postingDelete = (req, res) => {
     }
     res.status(200).json({ message: "delete complete" });
   } else {
-    res.status(403).json({ message: "delete failed" });
+    res.status(403).json({ message: "delete failed : Not allowed User" });
   }
+};
+
+const UserPosting = (req, res) => {
+  const { id } = req.body.data;
+  const data = {};
+  const posting = [];
+
+  data.userId = id;
+  data.userName = users[id - 1].name;
+  data.postings = posting;
+
+  posts.map((post) => {
+    if (post.userId === id) {
+      posting.push({
+        postingId: post.id,
+        postingTitle: post.title,
+        postingContent: post.content,
+      });
+    }
+  });
+  res.status(200).json({ data });
 };
 
 module.exports = {
@@ -142,4 +163,5 @@ module.exports = {
   viewingListofPosts,
   modifyPost,
   postingDelete,
+  UserPosting,
 };
