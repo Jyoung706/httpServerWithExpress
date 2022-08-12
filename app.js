@@ -14,7 +14,7 @@ const users = [
   { id: 3, name: "Jun", email: "Jun23@gmail.com", password: "13334423" },
 ];
 
-const posts = [
+let posts = [
   {
     id: 1,
     title: "간단한 HTTP API 개발 시작!",
@@ -122,18 +122,12 @@ const modifyPost = (req, res) => {
 };
 
 const postingDelete = (req, res) => {
-  const { id, userId } = req.body.data;
-  const postIndex = posts[id - 1];
+  const { id } = req.body.data;
 
-  if (postIndex.userId === userId) {
-    posts.splice(id - 1, 1);
-    for (let i = id - 1; i < posts.length; i++) {
-      posts[i].id -= 1;
-    }
-    res.status(200).json({ message: "delete complete" });
-  } else {
-    res.status(403).json({ message: "delete failed : Not allowed User" });
-  }
+  let newPost = posts.filter((post) => post.id !== id);
+  posts = newPost;
+
+  res.status(200).json({ message: "delete complete" });
 };
 
 const UserPosting = (req, res) => {
@@ -142,7 +136,7 @@ const UserPosting = (req, res) => {
   const posting = [];
 
   data.userId = id;
-  data.userName = users[id - 1].name;
+  data.userName = users.find((user) => user.id == id).name;
   data.postings = posting;
 
   posts.map((post) => {
