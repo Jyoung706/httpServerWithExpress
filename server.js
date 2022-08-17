@@ -3,7 +3,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const { DataSource } = require("typeorm");
 const app = express();
-app.use(cors(), morgan("combned"), express.json());
+app.use(cors(), morgan("combined"), express.json());
 require("dotenv").config();
 
 const myDataSource = new DataSource({
@@ -51,7 +51,24 @@ app.post("/post", (req, res) => {
   );
   res.status(200).json({ message: "postCreated" });
 });
-// app.get("/posts-list", (req,res) => {});
+app.get("/posts-list", (req, res) => {
+  myDataSource
+    .query(
+      `select 
+        users.id as userId, 
+        users.profile_image as userProfileImage, 
+        postings.id as postingId, 
+        posting_images.image_url as postingImageUrl, 
+        postings.contents as postingContent 
+        FROM users 
+        INNER JOIN postings ON postings.user_id = users.id 
+        INNER JOIN posting_images ON posting_images.posting_id = postings.id;`
+    )
+    .then((value) => {
+      res.status(200).json({ data: value });
+    })
+    .catch((err) => res.status(500).json({ message: "server error" }));
+});
 // app.patch("/modify-post", (req,res) => {});
 // app.delete("/post-delete", (req,res) => {});
 // app.get("/user_posting", (req,res) => {});
