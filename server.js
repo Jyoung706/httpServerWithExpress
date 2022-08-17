@@ -28,20 +28,29 @@ app.post("/signup", (req, res) => {
 
   myDataSource.query(
     `INSERT INTO users(
-      email,
-      nickname,
-      password,
-      profile_image
+       email,
+       nickname,
+       password,
+       profile_image
       ) VALUES (?,?,?,?);
       `,
     [email, nickname, password, profile_image]
   );
-  res.json({ message: "userCreated" });
-  res.status(200).json();
+  res.status(200).json({ message: "userCreated" });
 });
-// app.post("/post", (req,res) => {
+app.post("/post", (req, res) => {
+  const { user_id, contents } = req.body;
 
-// });
+  myDataSource.query(
+    `INSERT INTO postings(
+       user_id,
+       contents
+    ) VALUES (?, ?);
+    `,
+    [user_id, contents]
+  );
+  res.status(200).json({ message: "postCreated" });
+});
 // app.get("/posts-list", (req,res) => {});
 // app.patch("/modify-post", (req,res) => {});
 // app.delete("/post-delete", (req,res) => {});
