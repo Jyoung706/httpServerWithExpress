@@ -36,10 +36,12 @@ app.post("/signup", (req, res) => {
       `,
     [email, nickname, password, profile_image]
   );
-  res.json({ message: "user-created" });
+  res.json({ message: "userCreated" });
   res.status(200).json();
 });
-// app.post("/post", (req,res) => {});
+// app.post("/post", (req,res) => {
+
+// });
 // app.get("/posts-list", (req,res) => {});
 // app.patch("/modify-post", (req,res) => {});
 // app.delete("/post-delete", (req,res) => {});
