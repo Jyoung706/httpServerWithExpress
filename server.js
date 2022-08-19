@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { DataSource } = require("typeorm");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const app = express();
 app.use(cors(), morgan("combined"), express.json());
 require("dotenv").config();
@@ -24,23 +26,57 @@ app.get("/ping", (req, res, next) => {
 });
 
 app.post("/signup", (req, res) => {
-  const { email, nickname, password, profile_image } = req.body;
-
-  myDataSource.query(
-    `INSERT INTO users(
+  const salt = bcrypt.genSaltSync(10);
+  let { email, nickname, password, profile_image } = req.body;
+  password = bcrypt.hashSync(password, salt);
+  myDataSource
+    .query(
+      `INSERT INTO users(
        email,
        nickname,
        password,
        profile_image
       ) VALUES (?,?,?,?);
       `,
-    [email, nickname, password, profile_image]
-  );
-  res.status(200).json({ message: "userCreated" });
+      [email, nickname, password, profile_image]
+    )
+    .then((value) => {
+      res.status(200).json({ message: "userCreated" });
+    })
+    .catch((err) => {
+      res.status(400).json({ message: "error" });
+    });
 });
+
+app.post("/signin", (req, res) => {
+  const { email, password } = req.body;
+  myDataSource
+    .query(
+      `SELECT
+          users.email,
+          users.password
+          FROM users WHERE email = ?;`,
+      email
+    )
+    .then((value) => {
+      const userEmail = value[0]["email"];
+      const userPW = value[0]["password"];
+      const comparePW = bcrypt.compareSync(password, userPW);
+
+      if (email == userEmail && comparePW == true) {
+        res.status(200).json({ message: "logIn_complete" });
+      } else {
+        throw new Error();
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(403).json({ message: "Wrong Id or PW" });
+    });
+});
+
 app.post("/post", (req, res) => {
   const { user_id, contents } = req.body;
-
   myDataSource.query(
     `INSERT INTO postings(
        user_id,
@@ -51,6 +87,7 @@ app.post("/post", (req, res) => {
   );
   res.status(200).json({ message: "postCreated" });
 });
+
 app.get("/posts-list", (req, res) => {
   myDataSource
     .query(
@@ -69,9 +106,37 @@ app.get("/posts-list", (req, res) => {
     })
     .catch((err) => res.status(500).json({ message: "server error" }));
 });
-// app.patch("/modify-post", (req,res) => {});
+
+app.patch("/modify-post", (req, res) => {
+  const { id, user_id, contents } = req.body;
+
+  myDataSource
+    .query(
+      ` UPDATE postings SET contents = ? WHERE id = ? AND user_id = ?
+  `,
+      [contents, user_id, id]
+    )
+    .then(() => {
+      myDataSource
+        .query(
+          `SELECT 
+            users.id as userId, users.nickname as userName, 
+            postings.id as postingId, postings.contents as postingContents 
+            FROM users
+            INNER JOIN postings ON postings.user_id = users.id AND postings.id = ? WHERE users.id = ?`,
+          [id, user_id]
+        )
+        .then((value) => {
+          res.status(200).json({ value });
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: error });
+    });
+});
+
 // app.delete("/post-delete", (req,res) => {});
-// app.get("/user_posting", (req,res) => {});
 
 app.listen(4000, () => {
   console.log("server is listening on PORT 4000");
