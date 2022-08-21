@@ -31,12 +31,13 @@ app.get("/ping", (req, res, next) => {
   res.json({ message: "pong" });
 });
 
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
   const salt = bcrypt.genSaltSync(10);
   let { email, nickname, password, profile_image } = req.body;
-  password = bcrypt.hashSync(password, salt);
-  myDataSource
-    .query(
+  hashedPassword = bcrypt.hashSync(password, salt);
+
+  try {
+    await myDataSource.query(
       `INSERT INTO users(
        email,
        nickname,
@@ -44,41 +45,41 @@ app.post("/signup", (req, res) => {
        profile_image
       ) VALUES (?,?,?,?);
       `,
-      [email, nickname, password, profile_image]
-    )
-    .then((value) => {
-      res.status(200).json({ message: "userCreated" });
-    })
-    .catch((err) => {
-      res.status(400).json({ message: "error" });
-    });
+      [email, nickname, hashedPassword, profile_image]
+    );
+    res.status(201).json({ message: "userCreated" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "ERROR" });
+  }
 });
 
-app.post("/signin", (req, res) => {
+app.post("/signin", async (req, res) => {
   const { email, password } = req.body;
-  myDataSource
-    .query(
-      `SELECT
-          users.email,
-          users.password
-          FROM users WHERE email = ?;`,
-      email
-    )
-    .then((value) => {
-      const userEmail = value[0]["email"];
-      const userPW = value[0]["password"];
-      const comparePW = bcrypt.compareSync(password, userPW);
+  const [user] = await myDataSource.query(
+    `SELECT
+          id,
+          email,
+          password
+          FROM users 
+          WHERE email = ?;
+          `,
+    [email]
+  );
+  if (!user) {
+    console.log(user);
+    res.status(400).json({ message: "NO_USER" });
+  }
 
-      if (email == userEmail && comparePW == true) {
-        res.status(200).json({ message: "logIn_complete" });
-      } else {
-        throw new Error();
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(403).json({ message: "Wrong Id or PW" });
-    });
+  const comparePW = bcrypt.compareSync(password, user.password);
+
+  if (!comparePW) {
+    res.status(400).json({ message: "Wrong PW" });
+  }
+
+  const token = jwt.sign({ userId: user.id }, "secretKey");
+
+  res.status(200).json({ message: "success", token: token });
 });
 
 app.post("/post", async (req, res) => {
