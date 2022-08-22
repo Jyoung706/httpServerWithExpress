@@ -27,32 +27,13 @@ myDataSource
     console.log("Database initiate fail");
   });
 
+const signup = require("./controllers/userControl");
+
 app.get("/ping", (req, res, next) => {
   res.json({ message: "pong" });
 });
 
-app.post("/signup", async (req, res) => {
-  const salt = bcrypt.genSaltSync(10);
-  let { email, nickname, password, profile_image } = req.body;
-  hashedPassword = bcrypt.hashSync(password, salt);
-
-  try {
-    await myDataSource.query(
-      `INSERT INTO users(
-       email,
-       nickname,
-       password,
-       profile_image
-      ) VALUES (?,?,?,?);
-      `,
-      [email, nickname, hashedPassword, profile_image]
-    );
-    res.status(201).json({ message: "userCreated" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "ERROR" });
-  }
-});
+app.post("/signup", signup.createUser);
 
 app.post("/signin", async (req, res) => {
   const { email, password } = req.body;
