@@ -33,4 +33,18 @@ const createUser = async (email, nickname, password, profile_image) => {
   return user;
 };
 
-module.exports = { createUser };
+const userSignin = async (email, password) => {
+  const user = await myDataSource.query(
+    `SELECT
+          id,
+          email,
+          password
+          FROM users 
+          WHERE email = ?;
+          `,
+    [email]
+  );
+  return user;
+};
+
+module.exports = { createUser, userSignin };

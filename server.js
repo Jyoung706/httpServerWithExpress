@@ -1,67 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { DataSource } = require("typeorm");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const app = express();
 app.use(cors(), morgan("combined"), express.json());
 require("dotenv").config();
 
-const myDataSource = new DataSource({
-  type: process.env.TYPEORM_CONNECTION,
-  host: process.env.TYPEORM_HOST,
-  port: process.env.TYPEORM_PORT,
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
-});
-
-myDataSource
-  .initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!");
-  })
-  .catch((err) => {
-    console.log(err);
-    console.log("Database initiate fail");
-  });
-
-const signup = require("./controllers/userControl");
+const userControl = require("./controllers/userControl");
 
 app.get("/ping", (req, res, next) => {
   res.json({ message: "pong" });
 });
 
-app.post("/signup", signup.createUser);
+app.post("/signup", userControl.createUser);
 
-app.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
-  const [user] = await myDataSource.query(
-    `SELECT
-          id,
-          email,
-          password
-          FROM users 
-          WHERE email = ?;
-          `,
-    [email]
-  );
-  if (!user) {
-    console.log(user);
-    res.status(400).json({ message: "NO_USER" });
-  }
-
-  const comparePW = bcrypt.compareSync(password, user.password);
-
-  if (!comparePW) {
-    res.status(400).json({ message: "Wrong PW" });
-  }
-
-  const token = jwt.sign({ userId: user.id }, "secretKey");
-
-  res.status(200).json({ message: "success", token: token });
-});
+app.post("/signin", userControl.userSignin);
 
 app.post("/post", async (req, res) => {
   const { user_id, contents } = req.body;
