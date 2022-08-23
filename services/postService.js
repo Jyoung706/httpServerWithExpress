@@ -9,7 +9,11 @@ const postList = async () => {
 };
 
 const userPostList = async (id) => {
-  return postDao.userPostList(id);
+  const [post] = await postDao.userPostList(id);
+  let postings = JSON.parse(post["postings"]);
+  post["postings"] = postings;
+
+  return post;
 };
 
 const modifyData = async (id, contents) => {
