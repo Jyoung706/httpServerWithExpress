@@ -1,11 +1,8 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-const app = express();
+const dotenv = require("dotenv");
+dotenv.config();
+const { createApp } = require("./app");
 
-require("dotenv").config();
-const router = require("./routers");
-app.use(cors(), morgan("combined"), express.json(), router);
+const app = createApp();
 
 app.get("/ping", (req, res, next) => {
   res.json({ message: "pong" });
